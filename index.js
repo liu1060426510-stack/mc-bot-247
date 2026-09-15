@@ -2,6 +2,8 @@ const bedrock = require('bedrock-protocol');
 
 const host = 'PLAYON-5DP9.aternos.me';
 const port = 19139;
+
+// 分開定義兩個假玩家的名字
 const botNames = ['MC_Keeper_1', 'MC_Keeper_2'];
 
 function createBot(botName, delay) {
@@ -11,12 +13,14 @@ function createBot(botName, delay) {
         const client = bedrock.createClient({
             host: host,
             port: port,
-            username: botName,
+            username: botName, // 修正：確保傳入的是單一字串名字
             offline: true
         });
 
         client.on('spawn', () => {
             console.log(`[${botName}] 成功進入伺服器！開始執行 24/7 保活防踢...`);
+            
+            // 每 30 秒模擬一次活躍，防止被 Aternos 踢出
             setInterval(() => {
                 if (client.status === 'playing') {
                     client.write('player_auth_input', {
@@ -42,8 +46,9 @@ function createBot(botName, delay) {
     }, delay);
 }
 
-createBot(botNames, 0);
-createBot(botNames, 10000);
+// 修正：真正分開啟動兩個機器人，第 2 個延遲 10 秒進服
+createBot(botNames[0], 0);
+createBot(botNames[1], 10000);
 
 // 讓程式在 GitHub Actions 中不會因為沒事情做而提早結束
 setInterval(() => {
