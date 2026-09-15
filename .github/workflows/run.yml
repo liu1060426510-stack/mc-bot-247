@@ -1,0 +1,24 @@
+name: MC 24/7 Keeper
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # 允許手動點擊啟動
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 複製程式碼
+      uses: actions/checkout@v4
+
+    - name: 設定 Node.js 環境
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+
+    - name: 安裝基岩版連線套件
+      run: npm install bedrock-protocol
+
+    - name: 啟動雙假人保活
+      run: node index.js
