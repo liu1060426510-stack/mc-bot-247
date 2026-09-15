@@ -3,9 +3,6 @@ const bedrock = require('bedrock-protocol');
 const host = 'PLAYON-5DP9.aternos.me';
 const port = 19139;
 
-// 分開定義兩個假玩家的名字
-const botNames = ['MC_Keeper_1', 'MC_Keeper_2'];
-
 function createBot(botName, delay) {
     setTimeout(() => {
         console.log(`[${botName}] 正在嘗試連線至 ${host}:${port}...`);
@@ -13,14 +10,14 @@ function createBot(botName, delay) {
         const client = bedrock.createClient({
             host: host,
             port: port,
-            username: botName, // 修正：確保傳入的是單一字串名字
+            username: botName,
             offline: true
         });
 
         client.on('spawn', () => {
             console.log(`[${botName}] 成功進入伺服器！開始執行 24/7 保活防踢...`);
             
-            // 每 30 秒模擬一次活躍，防止被 Aternos 踢出
+            // 每 30 秒模擬一次活躍
             setInterval(() => {
                 if (client.status === 'playing') {
                     client.write('player_auth_input', {
@@ -35,8 +32,8 @@ function createBot(botName, delay) {
         });
 
         client.on('close', (reason) => {
-            console.log(`[${botName}] 斷線了 (${reason})。15 秒後重新連線...`);
-            createBot(botName, 15000);
+            console.log(`[${botName}] 斷線了 (${reason})。20 秒後重新連線...`);
+            createBot(botName, 20000); // 增加重連延遲，防止被 Aternos 鎖 IP
         });
 
         client.on('error', (err) => {
@@ -46,11 +43,11 @@ function createBot(botName, delay) {
     }, delay);
 }
 
-// 修正：真正分開啟動兩個機器人，第 2 個延遲 10 秒進服
-createBot(botNames[0], 0);
-createBot(botNames[1], 10000);
+// 修正：直接把名字和延遲時間寫死，不要再讀取陣列，第 2 個故意延遲 25 秒進服
+createBot('MC_Keeper_1', 0);
+createBot('MC_Keeper_2', 25000); // 延長間隔時間，防止被 Aternos 偵測為連續惡意連線
 
-// 讓程式在 GitHub Actions 中不會因為沒事情做而提早結束
+// 讓程式在 GitHub Actions 中持續運作
 setInterval(() => {
     console.log('[系統狀態] 雙假人程式持續運作中...');
 }, 60000);
